@@ -1,0 +1,4 @@
+[janitoo.components]
+hostsensor.disks = janitoo_hostsensor_psutil.component:make_disks
+hostsensor.processes = janitoo_hostsensor_psutil.component:make_processes
+
