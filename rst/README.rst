@@ -1,11 +1,12 @@
-===============
-The README file
-===============
+.. image:: https://travis-ci.org/bibi21000/janitoo_hostsensor_psutil.svg?branch=master
+    :target: https://travis-ci.org/bibi21000/janitoo_hostsensor_psutil
+    :alt: Travis test status
 
-This file will be published on your github account
+.. image:: https://travis-ci.org/bibi21000/janitoo_hostsensor_psutil.svg?branch=v0.0.6
+    :target: https://travis-ci.org/bibi21000/janitoo_hostsensor_psutil
+    :alt: Travis production status
 
-
-A section
-=========
-A text in this section.
+=========================
+janitoo_hostsensor_psutil
+=========================
 
