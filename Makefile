@@ -149,6 +149,14 @@ commit: develop
 	@echo
 	@echo "Commits for branch master pushed on github."
 
+pull:
+	git pull
+	@echo
+	@echo "Commits from branch master pulled from github."
+
+status:
+	git status
+
 tag: check-tag commit
 	git tag v${janitoo_version}
 	git push origin v${janitoo_version}
