@@ -28,14 +28,15 @@ __author__ = 'Sébastien GALLET aka bibi21000'
 __email__ = 'bibi21000@gmail.com'
 __copyright__ = "Copyright © 2013-2014-2015 Sébastien GALLET aka bibi21000"
 
-# Set default logging handler to avoid "No handler found" warnings.
 import logging
-logger = logging.getLogger( __name__ )
+logger = logging.getLogger("janitoo.hostsensor")
 
 import os, sys
 import threading
 import datetime
 from pkg_resources import get_distribution, DistributionNotFound
+import psutil
+
 from janitoo.thread import JNTBusThread
 from janitoo.options import get_option_autostart
 from janitoo.utils import HADD
@@ -43,7 +44,6 @@ from janitoo.node import JNTNode
 from janitoo.bus import JNTBus
 from janitoo.component import JNTComponent
 from janitoo.value import JNTValue, value_config_poll
-import psutil
 
 ##############################################################
 #Check that we are in sync with the official command classes

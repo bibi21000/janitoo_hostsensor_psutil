@@ -144,7 +144,7 @@ tar:
 	@echo "Archive for ${MODULENAME} version ${janitoo_version} created"
 
 commit: develop
-	git commit -m "Auto-commit" -a
+	-git commit -m "Auto-commit" -a
 	git push
 	@echo
 	@echo "Commits for branch master pushed on github."
