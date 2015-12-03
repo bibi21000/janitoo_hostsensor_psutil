@@ -14,6 +14,10 @@ ifndef PYTHON_EXEC
 PYTHON_EXEC=python
 endif
 
+ifndef message
+message="Auto-commit"
+endif
+
 ifdef VIRTUAL_ENV
 python_version_full := $(wordlist 2,4,$(subst ., ,$(shell ${VIRTUAL_ENV}/bin/${PYTHON_EXEC} --version 2>&1)))
 else
@@ -116,6 +120,7 @@ apidoc:
 	cd ${BUILDDIR}/janidoc/source && ./janitoo_collect.py  >extensions/index.rst
 
 doc: janidoc apidoc
+	- [ -f transitions_graph.py ] && python transitions_graph.py
 	-cp -Rf rst/* ${BUILDDIR}/janidoc/source
 	make -C ${BUILDDIR}/janidoc html
 	cp ${BUILDDIR}/janidoc/source/README.rst README.rst
@@ -138,6 +143,7 @@ develop:
 	@echo "Installation for developpers of ${MODULENAME} finished."
 
 travis-deps: deps
+	sudo apt-get -y install libevent-2.0-5 mosquitto
 	pip install git+git://github.com/bibi21000/janitoo_nosetests@master
 	@echo
 	@echo "Travis dependencies for ${MODULENAME} installed."
@@ -168,7 +174,7 @@ commit: develop
 	-git add rst/
 	-cp rst/README.rst .
 	-git add README.rst
-	-git commit -m "Auto-commit" -a
+	-git commit -m "$(message)" -a
 	git push
 	@echo
 	@echo "Commits for branch master pushed on github."
