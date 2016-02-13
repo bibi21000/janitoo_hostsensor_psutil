@@ -64,7 +64,6 @@ class TestHostSensorSerser(JNTTServer, JNTTServerCommon):
     server_conf = "tests/data/janitoo_hostsensor.conf"
 
     def test_101_wait_for_all_nodes(self):
-        self.onlyTravisTest()
         self.start()
         try:
             self.assertHeartbeatNode(hadd=HADD%(1048,0))
