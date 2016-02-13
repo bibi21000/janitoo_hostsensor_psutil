@@ -66,19 +66,21 @@ class TestHostSensorSerser(JNTTServer, JNTTServerCommon):
     def test_101_wait_for_all_nodes(self):
         self.onlyTravisTest()
         self.start()
-        self.assertHeartbeatNode(hadd=HADD%(1048,0))
-        #~ self.assertHeartbeatNode(hadd=HADD%(1048,1))
-        #~ self.assertHeartbeatNode(hadd=HADD%(1048,2))
-        self.assertHeartbeatNode(hadd=HADD%(1048,3))
-        self.assertHeartbeatNode(hadd=HADD%(1048,4))
-        #~ self.assertHeartbeatNode(hadd=HADD%(1048,5))
-        self.stop()
+        try:
+            self.assertHeartbeatNode(hadd=HADD%(1048,0))
+            #~ self.assertHeartbeatNode(hadd=HADD%(1048,1))
+            #~ self.assertHeartbeatNode(hadd=HADD%(1048,2))
+            self.assertHeartbeatNode(hadd=HADD%(1048,3))
+            self.assertHeartbeatNode(hadd=HADD%(1048,4))
+            #~ self.assertHeartbeatNode(hadd=HADD%(1048,5))
+        finally:
+            self.stop()
 
-    def test_110_request_system_values(self):
+    def test_111_server_start_no_error_in_log(self):
         self.start()
-        nodeHADD=HADD%(1048,0)
-        self.assertHeartbeatNode(hadd=nodeHADD)
-        self.assertNodeRequest(cmd_class=COMMAND_DISCOVERY, uuid='request_info_nodes', node_hadd=nodeHADD, client_hadd=HADD%(9999,0))
-        self.assertBroadcastRequest(cmd_class=COMMAND_DISCOVERY, uuid='request_info_nodes', client_hadd=HADD%(9999,0))
-        self.stop()
-
+        try:
+            time.sleep(120)
+            self.assertInLogfile('Found heartbeats in timeout')
+            self.assertNotInLogfile('^ERROR ')
+        finally:
+            self.stop()
