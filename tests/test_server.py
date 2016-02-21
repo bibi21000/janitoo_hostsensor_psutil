@@ -45,17 +45,6 @@ from janitoo.utils import TOPIC_VALUES_USER, TOPIC_VALUES_CONFIG, TOPIC_VALUES_S
 
 from janitoo_hostsensor.server import HostSensorServer
 
-##############################################################
-#Check that we are in sync with the official command classes
-#Must be implemented for non-regression
-from janitoo.classes import COMMAND_DESC
-
-COMMAND_DISCOVERY = 0x5000
-
-assert(COMMAND_DESC[COMMAND_DISCOVERY] == 'COMMAND_DISCOVERY')
-##############################################################
-
-
 class TestHostSensorSerser(JNTTServer, JNTTServerCommon):
     """Test the hostsensor server
     """
