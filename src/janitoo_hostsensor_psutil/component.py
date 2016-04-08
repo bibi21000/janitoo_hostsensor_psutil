@@ -93,10 +93,12 @@ class PSUtilComponent(JNTComponent):
         if self._psutil_next_run < datetime.datetime.now():
             locked = self._lock.acquire(False)
             if locked == True:
-                logger.debug("Got the lock !!!")
+                logger.debug("[%s] - Got the lock !!!", self.__class__.__name__)
                 if self._psutil_thread is not None and self._psutil_thread.is_alive() == True:
-                    logger.warning("Start a new thread but the old one is already running. This should be a memory leak")
-                self._psutil_thread = threading.Thread(target = self.psutil_thread)
+                    logger.warning("[%s] - The old psqutil thread is still running. Exiting", self.__class__.__name__)
+                    self._lock.release()
+                    return
+                self._psutil_thread = threading.Thread(target = self.psutil_thread, args=(self._lock,))
                 self._psutil_thread.start()
 
 class Disks(JNTComponent):
@@ -520,111 +522,108 @@ class Processes(PSUtilComponent):
         if self._psutil_last == True:
             return self.values["memory_percent"].get_data_index(node_uuid=node_uuid, index=index)
 
-    def psutil_thread(self):
+    def psutil_thread(self, lock):
         """
         """
-        logger.debug("Start the threaded function")
+        logger.debug("[%s] - Start the threaded function", self.__class__.__name__)
+        active_ids = ['memory_rss', 'memory_vms', 'io_counters_read', 'io_counters_write', 'connections', 'num_threads',
+                    'open_files', 'num_ctx_switches_voluntary', 'num_ctx_switches_involuntary', 'num_fds',
+                    'cpu_percent', 'memory_percent']
         try:
-            active_ids = ['memory_rss', 'memory_vms', 'io_counters_read', 'io_counters_write', 'connections', 'num_threads',
-                        'open_files', 'num_ctx_switches_voluntary', 'num_ctx_switches_involuntary', 'num_fds',
-                        'cpu_percent', 'memory_percent']
-            try:
-                _psutil = {}
-                pids={}
-                for val_id in active_ids:
-                    if val_id not in pids:
-                        pids[val_id] = {}
-                    configs = self.values[val_id].get_index_configs()
-                    for pidf in configs :
-                        try:
-                            if os.path.isfile(pidf) == True:
-                                with open(pidf, "r") as fpi:
-                                    for line in fpi:
-                                        val = 0
-                                        try :
-                                            val = int(line)
-                                        except :
-                                            pass
-                                        if val != 0 :
-                                            pidname = pidf.split("/")
-                                            pname = pidname[len(pidname)-1].split(".")[0]
-                                            pids[val_id][val]=pidf
-                        except :
-                            logger.exception("Exception when reading pid file")
-                        _psutil[pidf] = {}
-                        _psutil[pidf]['memory_rss'] = None
-                        _psutil[pidf]['memory_vms'] = None
-                        _psutil[pidf]['io_counters_read'] = None
-                        _psutil[pidf]['io_counters_write'] = None
-                        _psutil[pidf]['connections'] = None
-                        _psutil[pidf]['num_threads'] = None
-                        _psutil[pidf]['cpu_percent'] = None
-                        _psutil[pidf]['memory_percent'] = None
-                        _psutil[pidf]['open_files'] = None
-                        _psutil[pidf]['num_ctx_switches_voluntary'] = None
-                        _psutil[pidf]['num_ctx_switches_involuntary'] = None
-                        _psutil[pidf]['num_fds'] = None
-                procs = [p for p in psutil.process_iter()]
-                for proc in procs[:]:
-                    for key in pids.keys():
-                        if proc.pid in pids[key] :
-                            for config in configs:
-                                if config == pids[key][proc.pid]:
-                                    if config not in _psutil:
-                                        _psutil[config] = {}
-                                    try:
-                                        _psutil[config]['memory_rss'], _psutil[config]['memory_vms'] = proc.memory_info()
-                                    except:
-                                        logger.exception("Exception catched when reading psutil")
-                                    try:
-                                        _psutil[config]['io_counters_read'] = proc.io_counters().read_bytes
-                                        _psutil[config]['io_counters_write'] = proc.io_counters().write_bytes
-                                    except:
-                                        logger.exception("Exception catched when reading psutil")
-                                    try:
-                                        _psutil[config]['num_threads'] = proc.num_threads()
-                                    except:
-                                        logger.exception("Exception catched when reading psutil")
-                                    try:
-                                        _psutil[config]['cpu_percent'] = round(proc.cpu_percent(interval=1.0), 2)
-                                    except:
-                                        logger.exception("Exception catched when reading psutil")
-                                    try:
-                                        _psutil[config]['memory_percent'] = round(proc.memory_percent(), 2)
-                                    except:
-                                        logger.exception("Exception catched when reading psutil")
-                                    try:
-                                        _psutil[config]['open_files'] = len(proc.open_files())
-                                    except:
-                                        logger.exception("Exception catched when reading psutil")
-                                    try:
-                                        res=proc.num_ctx_switches()
-                                        _psutil[config]['num_ctx_switches_voluntary'] = res.voluntary
-                                        _psutil[config]['num_ctx_switches_involuntary'] = res.involuntary
-                                    except:
-                                        logger.exception("Exception catched when reading psutil")
-                                    try:
-                                        _psutil[config]['num_fds'] = proc.num_fds()
-                                    except:
-                                        logger.exception("Exception catched when reading psutil")
-                                    try:
-                                        _psutil[config]['connections'] = len(proc.connections())
-                                    except:
-                                        logger.exception("Exception catched when reading psutil")
-                for val_id in active_ids:
-                    for config in self.values[val_id].get_index_configs():
-                        for which in _psutil:
-                            if config == which:
-                                self.values[val_id].set_data_index(config=config, data=_psutil[config][val_id])
-                self._psutil_last = True
-            except:
-                logger.exception("[%s] - Exception in get_psutil", self.__class__.__name__)
-                self._psutil_last = False
+            _psutil = {}
+            pids={}
+            for val_id in active_ids:
+                if val_id not in pids:
+                    pids[val_id] = {}
+                configs = self.values[val_id].get_index_configs()
+                for pidf in configs :
+                    try:
+                        if os.path.isfile(pidf) == True:
+                            with open(pidf, "r") as fpi:
+                                for line in fpi:
+                                    val = 0
+                                    try :
+                                        val = int(line)
+                                    except :
+                                        pass
+                                    if val != 0 :
+                                        pidname = pidf.split("/")
+                                        pname = pidname[len(pidname)-1].split(".")[0]
+                                        pids[val_id][val]=pidf
+                    except :
+                        logger.exception("[%s] - Exception when reading pid file", self.__class__.__name__)
+                    _psutil[pidf] = {}
+                    _psutil[pidf]['memory_rss'] = None
+                    _psutil[pidf]['memory_vms'] = None
+                    _psutil[pidf]['io_counters_read'] = None
+                    _psutil[pidf]['io_counters_write'] = None
+                    _psutil[pidf]['connections'] = None
+                    _psutil[pidf]['num_threads'] = None
+                    _psutil[pidf]['cpu_percent'] = None
+                    _psutil[pidf]['memory_percent'] = None
+                    _psutil[pidf]['open_files'] = None
+                    _psutil[pidf]['num_ctx_switches_voluntary'] = None
+                    _psutil[pidf]['num_ctx_switches_involuntary'] = None
+                    _psutil[pidf]['num_fds'] = None
+            procs = [p for p in psutil.process_iter()]
+            for proc in procs[:]:
+                for key in pids.keys():
+                    if proc.pid in pids[key] :
+                        for config in configs:
+                            if config == pids[key][proc.pid]:
+                                if config not in _psutil:
+                                    _psutil[config] = {}
+                                try:
+                                    _psutil[config]['memory_rss'], _psutil[config]['memory_vms'] = proc.memory_info()
+                                except:
+                                    logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
+                                try:
+                                    _psutil[config]['io_counters_read'] = proc.io_counters().read_bytes
+                                    _psutil[config]['io_counters_write'] = proc.io_counters().write_bytes
+                                except:
+                                    logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
+                                try:
+                                    _psutil[config]['num_threads'] = proc.num_threads()
+                                except:
+                                    logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
+                                try:
+                                    _psutil[config]['cpu_percent'] = round(proc.cpu_percent(interval=1.0), 2)
+                                except:
+                                    logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
+                                try:
+                                    _psutil[config]['memory_percent'] = round(proc.memory_percent(), 2)
+                                except:
+                                    logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
+                                try:
+                                    _psutil[config]['open_files'] = len(proc.open_files())
+                                except:
+                                    logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
+                                try:
+                                    res=proc.num_ctx_switches()
+                                    _psutil[config]['num_ctx_switches_voluntary'] = res.voluntary
+                                    _psutil[config]['num_ctx_switches_involuntary'] = res.involuntary
+                                except:
+                                    logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
+                                try:
+                                    _psutil[config]['num_fds'] = proc.num_fds()
+                                except:
+                                    logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
+                                try:
+                                    _psutil[config]['connections'] = len(proc.connections())
+                                except:
+                                    logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
+            for val_id in active_ids:
+                for config in self.values[val_id].get_index_configs():
+                    for which in _psutil:
+                        if config == which:
+                            self.values[val_id].set_data_index(config=config, data=_psutil[config][val_id])
+            self._psutil_last = True
         except:
-            logger.exception("[%s] - Exception in lock", self.__class__.__name__)
+            logger.exception("[%s] - Exception in get_psutil", self.__class__.__name__)
+            self._psutil_last = False
         finally:
-            self._lock.release()
-            logger.debug("And finally release the lock !!!")
+            lock.release()
+            logger.debug("[%s] - And finally release the lock !!!", self.__class__.__name__)
         min_poll=9999
         for val_id in active_ids:
             if self.values["%s_poll"%val_id].data > 0:

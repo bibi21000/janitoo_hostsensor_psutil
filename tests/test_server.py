@@ -56,3 +56,6 @@ class TestHostSensorSerser(JNTTServer, JNTTServerCommon):
     server_conf = "tests/data/janitoo_hostsensor.conf"
     hadds = [HADD%(1048,0), HADD%(1048,3), HADD%(1048,4)]
 
+    def test_040_server_start_no_error_in_log(self):
+        self.onlyCITest()
+        JNTTServerCommon.test_040_server_start_no_error_in_log(self)
