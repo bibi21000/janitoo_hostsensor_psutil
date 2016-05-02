@@ -113,8 +113,6 @@ class Disks(JNTComponent):
             addr = addr,
             name = kwargs.pop('name', "Disks statistics"),
             product_name = kwargs.pop('product_name', "Disks statistics"),
-            product_type = kwargs.pop('product_type', "Software"),
-            product_manufacturer = kwargs.pop('product_manufacturer', "PSUtil"),
             **kwargs)
         logger.debug("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
 
@@ -311,11 +309,13 @@ class Processes(PSUtilComponent):
     """ Use psutil to retrieve informations. """
 
     def __init__(self, bus=None, addr=None, **kwargs):
-        oid = kwargs.pop('oid', 'hostsensor.processes')
-        name = kwargs.pop('name', "Processes statistics")
-        product_name = kwargs.pop('product_name', "Processes monitoring")
-        PSUtilComponent.__init__(self, oid=oid, bus=bus, addr=addr, name=name,
-                product_name=product_name, **kwargs)
+        PSUtilComponent.__init__(self,
+            oid = kwargs.pop('oid', 'hostsensor.processes'),
+            bus = bus,
+            addr = addr,
+            name = kwargs.pop('name', "Processes"),
+            product_name = kwargs.pop('product_name', "Processes statistics"),
+            **kwargs)
         logger.debug("[%s] - __init__ node uuid:%s", self.__class__.__name__, self.uuid)
 
         uuid="memory_rss"
