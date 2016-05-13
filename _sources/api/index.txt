@@ -1,0 +1,22 @@
+janitoo_hostsensor_psutil package
+=================================
+
+Submodules
+----------
+
+janitoo_hostsensor_psutil.component module
+------------------------------------------
+
+.. automodule:: janitoo_hostsensor_psutil.component
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: janitoo_hostsensor_psutil
+    :members:
+    :undoc-members:
+    :show-inheritance:
