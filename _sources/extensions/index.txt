@@ -1,14 +1,7 @@
-janitoo_hostsensor_psutil package
-=================================
+Janitoo's extensions
+====================
 
-Show janitoo's extensions.
+This package contains the following extensions for Janitoo.
 
-Core extensions
----------------
-
-Components
-^^^^^^^^^^
-
- - hostsensor.disks (janitoo_hostsensor_psutil.component:make_disks)
- - hostsensor.processes (janitoo_hostsensor_psutil.component:make_processes)
+.. jnt-extensions::
 
