@@ -203,7 +203,7 @@ class Disks(JNTComponent):
                             self.values['free'].set_config(node_uuid, idx, part.mountpoint)
                             self.values['percent_use'].set_config(node_uuid, idx, part.mountpoint)
                             idx += 1
-                except:
+                except Exception:
                     logger.exception("[%s] - Exception in get_config", self.__class__.__name__)
                 #~ finally:
                     #~ self._lock.release()
@@ -223,7 +223,7 @@ class Disks(JNTComponent):
             for i in range(0, self.values[uuid].get_max_index(node_uuid)+1):
                 self.values[uuid].set_data_index(index=i, data=self._psutil[i][uuid])
             return self._psutil[index][uuid]
-        except:
+        except Exception:
             logger.exception("[%s] - Exception in get_total", self.__class__.__name__)
         return None
 
@@ -236,7 +236,7 @@ class Disks(JNTComponent):
             for i in range(0, self.values[uuid].get_max_index(node_uuid)+1):
                 self.values[uuid].set_data_index(index=i, data=self._psutil[i][uuid])
             return self._psutil[index][uuid]
-        except:
+        except Exception:
             logger.exception("[%s] - Exception in get_used", self.__class__.__name__)
         return None
 
@@ -249,7 +249,7 @@ class Disks(JNTComponent):
             for i in range(0, self.values[uuid].get_max_index(node_uuid)+1):
                 self.values[uuid].set_data_index(index=i, data=self._psutil[i][uuid])
             return self._psutil[index][uuid]
-        except:
+        except Exception:
             logger.exception("[%s] - Exception in get_free", self.__class__.__name__)
         return None
 
@@ -262,7 +262,7 @@ class Disks(JNTComponent):
             for i in range(0, self.values[uuid].get_max_index(node_uuid)+1):
                 self.values[uuid].set_data_index(index=i, data=self._psutil[i][uuid])
             return self._psutil[index][uuid]
-        except:
+        except Exception:
             logger.exception("[%s] - Exception in get_percent_use", self.__class__.__name__)
         return None
 
@@ -291,10 +291,10 @@ class Disks(JNTComponent):
                             self._psutil[index]['free'], self._psutil[index]['percent_use'] = \
                                 psutil.disk_usage(self.values['partition'].instances[index]['config'])
                             #~ print self.values['partition'].instances[index]['config'], self._psutil[index]['total']
-                        except:
+                        except Exception:
                             self._psutil_last = False
                             logger.exception("[%s] - Exception in get_psutil", self.__class__.__name__)
-                except:
+                except Exception:
                     self._psutil_last = False
                     logger.exception("[%s] - Exception in get_psutil", self.__class__.__name__)
                 finally:
@@ -587,42 +587,42 @@ class Processes(PSUtilComponent):
                                     _psutil[config] = {}
                                 try:
                                     _psutil[config]['memory_rss'], _psutil[config]['memory_vms'] = proc.memory_info()
-                                except:
+                                except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
                                     _psutil[config]['io_counters_read'] = proc.io_counters().read_bytes
                                     _psutil[config]['io_counters_write'] = proc.io_counters().write_bytes
-                                except:
+                                except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
                                     _psutil[config]['num_threads'] = proc.num_threads()
-                                except:
+                                except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
                                     _psutil[config]['cpu_percent'] = round(proc.cpu_percent(interval=1.0), 2)
-                                except:
+                                except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
                                     _psutil[config]['memory_percent'] = round(proc.memory_percent(), 2)
-                                except:
+                                except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
                                     _psutil[config]['open_files'] = len(proc.open_files())
-                                except:
+                                except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
                                     res=proc.num_ctx_switches()
                                     _psutil[config]['num_ctx_switches_voluntary'] = res.voluntary
                                     _psutil[config]['num_ctx_switches_involuntary'] = res.involuntary
-                                except:
+                                except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
                                     _psutil[config]['num_fds'] = proc.num_fds()
-                                except:
+                                except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
                                     _psutil[config]['connections'] = len(proc.connections())
-                                except:
+                                except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
             for val_id in active_ids:
                 for config in self.values[val_id].get_index_configs():
@@ -630,7 +630,7 @@ class Processes(PSUtilComponent):
                         if config == which:
                             self.values[val_id].set_data_index(config=config, data=_psutil[config][val_id])
             self._psutil_last = True
-        except:
+        except Exception:
             logger.exception("[%s] - Exception in get_psutil", self.__class__.__name__)
             self._psutil_last = False
         finally:
