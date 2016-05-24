@@ -57,6 +57,8 @@ assert(COMMAND_DESC[COMMAND_METER] == 'COMMAND_METER')
 assert(COMMAND_DESC[COMMAND_CONFIGURATION] == 'COMMAND_CONFIGURATION')
 ##############################################################
 
+from janitoo_hostsensor import OID
+
 def make_disks(**kwargs):
     return Disks(**kwargs)
 
@@ -108,7 +110,7 @@ class Disks(JNTComponent):
 
     def __init__(self, bus=None, addr=None, **kwargs):
         JNTComponent.__init__(self,
-            oid = kwargs.pop('oid', 'hostsensor.disks'),
+            oid = kwargs.pop('oid', '%s.disks'%OID),
             bus = bus,
             addr = addr,
             name = kwargs.pop('name', "Disks statistics"),
@@ -310,7 +312,7 @@ class Processes(PSUtilComponent):
 
     def __init__(self, bus=None, addr=None, **kwargs):
         PSUtilComponent.__init__(self,
-            oid = kwargs.pop('oid', 'hostsensor.processes'),
+            oid = kwargs.pop('oid', '%s.processes'%OID),
             bus = bus,
             addr = addr,
             name = kwargs.pop('name', "Processes"),
