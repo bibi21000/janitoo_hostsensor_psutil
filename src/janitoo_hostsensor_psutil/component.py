@@ -643,4 +643,3 @@ class Processes(PSUtilComponent):
             if self.values["%s_poll"%val_id].data > 0:
                 min_poll=min(min_poll, self.values["%s_poll"%val_id].data)
         self._psutil_next_run = datetime.datetime.now() + datetime.timedelta(seconds=min_poll)
-
