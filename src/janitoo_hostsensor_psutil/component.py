@@ -581,7 +581,7 @@ class Processes(PSUtilComponent):
                     _psutil[pidf]['num_fds'] = None
             procs = [p for p in psutil.process_iter()]
             for proc in procs[:]:
-                for key in pids.keys():
+                for key in list(pids.keys()):
                     if proc.pid in pids[key] :
                         for config in configs:
                             if config == pids[key][proc.pid]:
