@@ -31,19 +31,14 @@ __copyright__ = "Copyright © 2013-2014-2015-2016 Sébastien GALLET aka bibi2100
 import logging
 logger = logging.getLogger(__name__)
 
-import os, sys
+import os
 import threading
 import datetime
-from pkg_resources import get_distribution, DistributionNotFound
+from pkg_resources import DistributionNotFound
 import psutil
 
-from janitoo.thread import JNTBusThread
-from janitoo.options import get_option_autostart
-from janitoo.utils import HADD
-from janitoo.node import JNTNode
-from janitoo.bus import JNTBus
 from janitoo.component import JNTComponent
-from janitoo.value import JNTValue, value_config_poll
+from janitoo.value import value_config_poll
 
 ##############################################################
 #Check that we are in sync with the official command classes
@@ -558,13 +553,13 @@ class Processes(PSUtilComponent):
                                     val = 0
                                     try :
                                         val = int(line)
-                                    except :
+                                    except Exception:
                                         pass
                                     if val != 0 :
                                         pidname = pidf.split("/")
                                         pname = pidname[len(pidname)-1].split(".")[0]
                                         pids[val_id][val]=pidf
-                    except :
+                    except Exception:
                         logger.exception("[%s] - Exception when reading pid file", self.__class__.__name__)
                     _psutil[pidf] = {}
                     _psutil[pidf]['memory_rss'] = None
