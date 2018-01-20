@@ -583,12 +583,15 @@ class Processes(PSUtilComponent):
                                 if config not in _psutil:
                                     _psutil[config] = {}
                                 try:
-                                    _psutil[config]['memory_rss'], _psutil[config]['memory_vms'] = proc.memory_info()
+                                    tmp = proc.memory_info()
+                                    _psutil[config]['memory_rss'] = tmp.rss
+                                    _psutil[config]['memory_vms'] = tmp.vms
                                 except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
-                                    _psutil[config]['io_counters_read'] = proc.io_counters().read_bytes
-                                    _psutil[config]['io_counters_write'] = proc.io_counters().write_bytes
+                                    tmp = proc.io_counters()
+                                    _psutil[config]['io_counters_read'] = tmp.read_bytes
+                                    _psutil[config]['io_counters_write'] = tmp.write_bytes
                                 except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
@@ -608,7 +611,7 @@ class Processes(PSUtilComponent):
                                 except Exception:
                                     logger.exception("[%s] - Exception catched when reading psutil", self.__class__.__name__)
                                 try:
-                                    res=proc.num_ctx_switches()
+                                    res = proc.num_ctx_switches()
                                     _psutil[config]['num_ctx_switches_voluntary'] = res.voluntary
                                     _psutil[config]['num_ctx_switches_involuntary'] = res.involuntary
                                 except Exception:
