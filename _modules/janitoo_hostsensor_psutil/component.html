@@ -142,19 +142,14 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="k">import</span> <span class="n">get_distribution</span><span class="p">,</span> <span class="n">DistributionNotFound</span>
+<span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="k">import</span> <span class="n">DistributionNotFound</span>
 <span class="kn">import</span> <span class="nn">psutil</span>
 
-<span class="kn">from</span> <span class="nn">janitoo.thread</span> <span class="k">import</span> <span class="n">JNTBusThread</span>
-<span class="kn">from</span> <span class="nn">janitoo.options</span> <span class="k">import</span> <span class="n">get_option_autostart</span>
-<span class="kn">from</span> <span class="nn">janitoo.utils</span> <span class="k">import</span> <span class="n">HADD</span>
-<span class="kn">from</span> <span class="nn">janitoo.node</span> <span class="k">import</span> <span class="n">JNTNode</span>
-<span class="kn">from</span> <span class="nn">janitoo.bus</span> <span class="k">import</span> <span class="n">JNTBus</span>
 <span class="kn">from</span> <span class="nn">janitoo.component</span> <span class="k">import</span> <span class="n">JNTComponent</span>
-<span class="kn">from</span> <span class="nn">janitoo.value</span> <span class="k">import</span> <span class="n">JNTValue</span><span class="p">,</span> <span class="n">value_config_poll</span>
+<span class="kn">from</span> <span class="nn">janitoo.value</span> <span class="k">import</span> <span class="n">value_config_poll</span>
 
 <span class="c1">##############################################################</span>
 <span class="c1">#Check that we are in sync with the official command classes</span>
@@ -669,13 +664,13 @@
                                     <span class="n">val</span> <span class="o">=</span> <span class="mi">0</span>
                                     <span class="k">try</span> <span class="p">:</span>
                                         <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                                    <span class="k">except</span> <span class="p">:</span>
+                                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                                         <span class="k">pass</span>
                                     <span class="k">if</span> <span class="n">val</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">:</span>
                                         <span class="n">pidname</span> <span class="o">=</span> <span class="n">pidf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
                                         <span class="n">pname</span> <span class="o">=</span> <span class="n">pidname</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">pidname</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                                         <span class="n">pids</span><span class="p">[</span><span class="n">val_id</span><span class="p">][</span><span class="n">val</span><span class="p">]</span><span class="o">=</span><span class="n">pidf</span>
-                    <span class="k">except</span> <span class="p">:</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] - Exception when reading pid file&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
                     <span class="n">_psutil</span><span class="p">[</span><span class="n">pidf</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                     <span class="n">_psutil</span><span class="p">[</span><span class="n">pidf</span><span class="p">][</span><span class="s1">&#39;memory_rss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -699,12 +694,15 @@
                                 <span class="k">if</span> <span class="n">config</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_psutil</span><span class="p">:</span>
                                     <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                                 <span class="k">try</span><span class="p">:</span>
-                                    <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;memory_rss&#39;</span><span class="p">],</span> <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;memory_vms&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span>
+                                    <span class="n">tmp</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span>
+                                    <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;memory_rss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">rss</span>
+                                    <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;memory_vms&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">vms</span>
                                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                                     <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] - Exception catched when reading psutil&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
                                 <span class="k">try</span><span class="p">:</span>
-                                    <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;io_counters_read&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">io_counters</span><span class="p">()</span><span class="o">.</span><span class="n">read_bytes</span>
-                                    <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;io_counters_write&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">io_counters</span><span class="p">()</span><span class="o">.</span><span class="n">write_bytes</span>
+                                    <span class="n">tmp</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">io_counters</span><span class="p">()</span>
+                                    <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;io_counters_read&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">read_bytes</span>
+                                    <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;io_counters_write&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">write_bytes</span>
                                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                                     <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] - Exception catched when reading psutil&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
                                 <span class="k">try</span><span class="p">:</span>
@@ -724,7 +722,7 @@
                                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                                     <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] - Exception catched when reading psutil&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
                                 <span class="k">try</span><span class="p">:</span>
-                                    <span class="n">res</span><span class="o">=</span><span class="n">proc</span><span class="o">.</span><span class="n">num_ctx_switches</span><span class="p">()</span>
+                                    <span class="n">res</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">num_ctx_switches</span><span class="p">()</span>
                                     <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;num_ctx_switches_voluntary&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">voluntary</span>
                                     <span class="n">_psutil</span><span class="p">[</span><span class="n">config</span><span class="p">][</span><span class="s1">&#39;num_ctx_switches_involuntary&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">involuntary</span>
                                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
